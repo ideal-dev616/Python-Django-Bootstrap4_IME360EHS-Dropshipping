@@ -1,0 +1,3 @@
+[console_scripts]
+messages = messages.cli:main
+

@@ -1,0 +1,16 @@
+Metadata-Version: 2.0
+Name: jsonconfig-tool
+Version: 1.5
+Summary: Configuration made easy: JSON, encrypted, envvars, etc.
+Home-page: http://github.com/json-transformations/jsonconfig
+Author: Brian Peterson
+Author-email: bpeterso2000@yahoo.com
+License: MIT
+Description-Content-Type: UNKNOWN
+Requires-Dist: click (>=6.7)
+Requires-Dist: keyring (>=12.0.1)
+Requires-Dist: python-box (>=3.1.1)
+
+Welcome to JSON Config
+
+

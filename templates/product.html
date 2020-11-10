@@ -1,0 +1,633 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/dropify/dist/css/dropify.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'dist/css/pages/bootstrap-switch.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block body %}
+    <div class="page-wrapper">
+        <div class="container-fluid" style="padding: 0 70px;">
+            <div class="row page-titles">
+                <div class="col-md-5 align-self-center">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active">Products</li>
+                    </ol>
+                </div>
+                <div class="col-md-7 align-self-center text-right">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div id="modal_addproduct" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Add Product</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form class="form-horizontal p-t-20" id="form_addproduct">
+                                            <div class="alert alert-danger" id="errormsg_exist" style="text-align: left;"></div>
+                                            {% csrf_token %}
+                                            <div class="form-group row">
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Segment:</label>
+                                                    <select class="custom-select col-12" id="add_segment" name="add_segment">
+                                                        <option value="Medical" selected>Medical</option>
+                                                        <option value="Dental">Dental</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Product Code:</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_code" name="add_code">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Unit:</label>
+                                                    <select class="custom-select col-12" id="add_unit" name="add_unit">
+                                                        <option value="Bag" selected>Bag</option>
+                                                        <option value="Box">Box</option>
+                                                        <option value="Case">Case</option>
+                                                        <option value="Each">Each</option>
+                                                        <option value="Pack">Pack</option>
+                                                        <option value="Slip">Slip</option>
+                                                        <option value="N/A">N/A</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-8">
+                                                    <label style="float:left;" class="p-b-5">Description:</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_description" name="add_description" placeholder="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Cost:</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                        <input type="number" step="0.01" class="form-control" id="add_cost" name="add_cost" placeholder="0.00">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-8">
+                                                    <label style="float:left;" class="p-b-5">Manufacturer:</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_manufacturer" name="add_manufacturer" placeholder="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Markup:</label>
+                                                    <div class="input-group">
+                                                        <input type="number" step="0.01" class="form-control" id="add_markup" name="add_markup" placeholder="0.00">
+                                                        <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">%</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-8">
+                                                    <label style="float:left;" class="p-b-5">Category:</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_category" name="add_category" placeholder="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Retail:</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                        <input type="number" step="0.01" class="form-control" id="add_retail" name="add_retail" placeholder="0.00">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <label style="float:left;" class="p-b-5">Upload Product Image</label>
+                                                    <input type="file" id="add_productimage" name="add_productimage" class="dropify" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-6">
+                                                    <label style="float:left;" class="p-b-5">Status:</label>
+                                                    <select class="custom-select col-12" id="add_status" name="add_status">
+                                                        <option value="In Stock" selected><span class="label label-table label-success">In Stock</span></option>
+                                                        <option value="Backordered"><span class="label label-table label-warning">Backordered</span></option>
+                                                        <option value="Discontinued"><span class="label label-table label-danger">Discontinued</span></option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-6 bt-switch" style="text-align: left;">
+                                                    <label class="p-b-5">Type:&nbsp;</label><br>
+                                                    <input type="checkbox" id="add_type" name="add_type" data-on-color="success" data-off-color="primary" data-on-text="Serviceable" data-off-text="Product">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row" style="display:none;" id="add_typeform">
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Service Cost:</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                        <input type="number" step="0.01" class="form-control" id="add_servicecost" name="add_servicecost" placeholder="0.00">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Service Markup:</label>
+                                                    <div class="input-group">
+                                                        <input type="number" step="0.01" class="form-control" id="add_servicemarkup" name="add_servicemarkup" placeholder="0.00">
+                                                        <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">%</span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label style="float:left;" class="p-b-5">Service Retail:</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                        <input type="number" step="0.01" class="form-control" id="add_serviceretail" name="add_serviceretail" placeholder="0.00">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" data-toggle="modal" data-target="#modal_addproduct" class="btn btn-primary d-none d-lg-block m-l-15"><i
+                                class="fa fa-plus-circle"></i> Add Product</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body" style="padding: 1.25rem 0;">
+                            <div class="table-responsive">
+                                <table id="tbl_products" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Segment</th>
+                                            <th>Product Code</th>
+                                            <th>Description</th>
+                                            <th>Category</th>
+                                            <th>Unit</th>
+                                            <th>Cost ($)</th>
+                                            <th>Mark Up (%)</th>
+                                            <th>Retail (%)</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Segment</th>
+                                            <th>Product Code</th>
+                                            <th>Description</th>
+                                            <th>Category</th>
+                                            <th>Unit</th>
+                                            <th>Cost ($)</th>
+                                            <th>Mark Up (%)</th>
+                                            <th>Retail (%)</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        {% for product in products %}
+                                        <tr id="{{product.id}}" manufacturer="{{product.manufacturer}}" product_image="{{product.product_image}}" product_type="{{product.product_type}}" status="{{product.status}}" service_cost="{{product.service_cost}}" service_markup="{{product.service_markup}}" service_retail="{{product.service_retail}}">
+                                            <td class="segment">{{product.segment}}</td>
+                                            <td class="code">{{product.product_code}}</td>
+                                            <td class="description">{{product.description}}</td>
+                                            <td class="category">{{product.category}}</td>
+                                            <td class="unit">{{product.unit}}</td>
+                                            <td class="cost">{{product.cost}}</td>
+                                            <td class="markup">{{product.markup}}</td>
+                                            <td class="retail">{{product.retail}}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-xs" role="group">
+                                                    <button type="button" onclick="initialEditform(this)" data-toggle="modal" data-target="#modal_editproduct" class="btn btn-secondary"><span class="fas fa-pencil-alt" aria-hidden="true"></span></button> 
+                                                    <button type="button" class="btn btn-secondary footable-delete" onclick="deleteRow(this)"><span class="fas fa-trash-alt" aria-hidden="true"></span></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div id="modal_editproduct" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Edit Product</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form class="form-horizontal p-t-20" id="form_editproduct">
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Segment:</label>
+                                                            <select class="custom-select col-12" id="edit_segment" name="edit_segment">
+                                                                <option value="Medical" selected>Medical</option>
+                                                                <option value="Dental">Dental</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Product Code:</label>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_code" name="edit_code" placeholder="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Unit:</label>
+                                                            <select class="custom-select col-12" id="edit_unit" name="edit_unit">
+                                                                <option value="Bag" selected>Bag</option>
+                                                                <option value="Box">Box</option>
+                                                                <option value="Case">Case</option>
+                                                                <option value="Each">Each</option>
+                                                                <option value="Pack">Pack</option>
+                                                                <option value="Slip">Slip</option>
+                                                                <option value="N/A">N/A</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-8">
+                                                            <label style="float:left;" class="p-b-5">Description:</label>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_description" name="edit_description" placeholder="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Cost:</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                                <input type="number" step="0.01" class="form-control" id="edit_cost" name="edit_cost" placeholder="0.00">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-8">
+                                                            <label style="float:left;" class="p-b-5">Manufacturer:</label>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_manufacturer" name="edit_manufacturer" placeholder="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Markup:</label>
+                                                            <div class="input-group">
+                                                                <input type="number" step="0.01" class="form-control" id="edit_markup" name="edit_markup" placeholder="0.00">
+                                                                <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">%</span></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-8">
+                                                            <label style="float:left;" class="p-b-5">Category:</label>
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_category" name="edit_category" placeholder="">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Retail:</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                                <input type="number" step="0.01" class="form-control" id="edit_retail" name="edit_retail" placeholder="0.00">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <label style="float:left;" class="p-b-5">Upload Product Image</label>
+                                                            <input type="file" id="edit_productimage" name="edit_productimage" class="dropify" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-6">
+                                                            <label style="float:left;" class="p-b-5">Status:</label>
+                                                            <select class="custom-select col-12" id="edit_status" name="edit_status">
+                                                                <option value="In Stock" selected><span class="label label-table label-success">In Stock</span></option>
+                                                                <option value="Backordered"><span class="label label-table label-warning">Backordered</span></option>
+                                                                <option value="Discontinued"><span class="label label-table label-danger">Discontinued</span></option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-6 bt-switch" style="text-align: left;">
+                                                            <label class="p-b-5">Type:&nbsp;</label><br>
+                                                            <input type="checkbox" id="edit_type" name="edit_type" data-on-color="success" data-off-color="primary" data-on-text="Serviceable" data-off-text="Product">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row" style="display:none;" id="edit_typeform">
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Service Cost:</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                                <input type="number" step="0.01" class="form-control" id="edit_servicecost" placeholder="0.00">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Service Markup:</label>
+                                                            <div class="input-group">
+                                                                <input type="number" step="0.01" class="form-control" id="edit_servicemarkup" placeholder="0.00">
+                                                                <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">%</span></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <label style="float:left;" class="p-b-5">Service Retail:</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-addon bootstrap-touchspin-prefix input-group-prepend"><span class="input-group-text">$</span></span>
+                                                                <input type="number" step="0.01" class="form-control" id="edit_serviceretail" placeholder="0.00">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/dropify/dist/js/dropify.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.js' %}"></script>
+
+    <script type="text/javascript">
+        
+        $(".bt-switch input[type='checkbox'], .bt-switch input[type='radio']").bootstrapSwitch();
+        $("#errormsg_exist").css("display","none");
+
+        function initialEditform(elm){
+            trow = $(elm).parent().parent().parent();
+            $("#form_editproduct").val(trow.attr("id"));
+            $("#edit_segment").val(trow.children(".segment").text());
+            $("#edit_code").val(trow.children(".code").text());
+            $("#edit_description").val(trow.children(".description").text());
+            $("#edit_category").val(trow.children(".category").text());
+            $("#edit_unit").val(trow.children(".unit").text());
+            $("#edit_cost").val(trow.children(".cost").text());
+            $("#edit_markup").val(trow.children(".markup").text());
+            $("#edit_retail").val(trow.children(".retail").text());
+            $("#edit_manufacturer").val(trow.attr("manufacturer"));
+            $("#edit_status").val(trow.attr("status"));
+            $("#edit_servicecost").val(trow.attr("service_cost"));
+            $("#edit_servicemarkup").val(trow.attr("service_markup"));
+            $("#edit_serviceretail").val(trow.attr("service_retail"));
+
+            if(trow.attr("product_type") == "true"){
+                $("#edit_type").bootstrapSwitch('state', true);
+            }else{
+                $("#edit_type").bootstrapSwitch('state', false);
+            }
+
+            var fullpath = "/static" + trow.attr("product_image");
+            if(trow.attr("product_image")!=""){
+                $("#edit_productimage").attr("data-default-file", fullpath);
+                $("#edit_productimage").parent().children(".dropify-preview").css("display","block");
+                $("#edit_productimage").parent().children(".dropify-preview").children(".dropify-render").html("<img src='"+ fullpath +"'>");
+                $("#edit_productimage").parent().children(".dropify-clear").css("display","block");
+                $('.dropify').dropify();
+                $(".dropify-filename-inner").text("product");
+            }else{
+                $(".dropify-clear").trigger("click");
+            }
+        }
+
+        function deleteRow(elm){
+            $.ajax({
+                type: "POST",
+                url: "/ajax/delete/product/",
+                data: {
+                    'id' : $(elm).closest("tr").attr("id"),
+                },
+                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                dataType: 'json',
+                success: function (data)
+                {
+                    location.reload(true);
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $('#tbl_products').DataTable();
+            $('.dropify').dropify();
+            
+            $('#form_addproduct').validate({
+                rules: {
+                    add_code: {
+                        required: true
+                    },
+                    add_description: {
+                        required: true
+                    },
+                    add_cost: {
+                        required: true
+                    },
+                    add_markup: {
+                        required: true
+                    },
+                    add_retail: {
+                        required: true
+                    },
+                    add_category: {
+                        required: true
+                    }
+                },
+                errorPlacement: function(){
+                    return false;
+                }                
+            });
+
+            $('#form_editproduct').validate({
+                rules: {
+                    edit_code: {
+                        required: true
+                    },
+                    edit_description: {
+                        required: true
+                    },
+                    edit_cost: {
+                        required: true
+                    },
+                    edit_markup: {
+                        required: true
+                    },
+                    edit_retail: {
+                        required: true
+                    },
+                    edit_category: {
+                        required: true
+                    }
+                },
+                errorPlacement: function(){
+                    return false;
+                }                
+            });
+
+            $("#form_addproduct").submit(function(e){
+                e.preventDefault();
+                
+                var formData = new FormData();
+
+                var img_product = $("#add_productimage")[0].files[0];
+                formData.append("img_product", img_product);
+                formData.append("segment", $("#add_segment").val());
+                formData.append("code", $("#add_code").val());
+                formData.append("unit", $("#add_unit").val());
+                formData.append("description", $("#add_description").val());
+                formData.append("cost", $("#add_cost").val());
+                formData.append("manufacturer", $("#add_manufacturer").val());
+                formData.append("markup", $("#add_markup").val());
+                formData.append("category", $("#add_category").val());
+                formData.append("retail", $("#add_retail").val());
+                formData.append("status", $("#add_status").val());
+                formData.append("type", $("#add_type").bootstrapSwitch('state'));
+                formData.append("service_cost", $("#add_servicecost").val());
+                formData.append("service_markup", $("#add_servicemarkup").val());
+                formData.append("service_retail", $("#add_serviceretail").val());
+                
+                if($(this).valid()){
+                    $("#errormsg_exist").html("");
+                    $("#errormsg_exist").css("display", "none");
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: "/ajax/add/product/",
+                        data: formData,
+                        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                        processData: false,
+                        cache: false,
+                        contentType: false,
+                        success: function (data)
+                        {
+                            if(data.result=="exist"){
+                                $("#errormsg_exist").html('<i class="ti-user"></i>&nbsp;&nbsp;&nbsp;This Product already exists.');
+                                $("#errormsg_exist").css("display", "block");
+                            }else if(data.result=="success"){
+                                $("#modal_addproduct").modal("toggle");
+                                location.reload(true);
+                            }
+                        }
+                    });
+                }
+            });
+
+            $("#form_editproduct").submit(function(e){
+                e.preventDefault();
+                var formData = new FormData();
+
+                var img_product = $("#edit_productimage")[0].files[0];
+                formData.append("img_product", img_product);
+                formData.append("id", $("#form_editproduct").val());
+                formData.append("image_exist", $("#edit_productimage").parent().children(".dropify-preview").css("display"));
+                formData.append("segment", $("#edit_segment").val());
+                formData.append("code", $("#edit_code").val());
+                formData.append("unit", $("#edit_unit").val());
+                formData.append("description", $("#edit_description").val());
+                formData.append("cost", $("#edit_cost").val());
+                formData.append("manufacturer", $("#edit_manufacturer").val());
+                formData.append("markup", $("#edit_markup").val());
+                formData.append("category", $("#edit_category").val());
+                formData.append("retail", $("#edit_retail").val());
+                formData.append("status", $("#edit_status").val());
+                formData.append("type", $("#edit_type").bootstrapSwitch('state'));
+                formData.append("service_cost", $("#edit_servicecost").val());
+                formData.append("service_markup", $("#edit_servicemarkup").val());
+                formData.append("service_retail", $("#edit_serviceretail").val());
+                
+                if($(this).valid()){                    
+                    $.ajax({
+                        type: "POST",
+                        url: "/ajax/edit/product/",
+                        data: formData,
+                        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                        processData: false,
+                        cache: false,
+                        contentType: false,
+                        success: function (data)
+                        {
+                            console.log(data.result);
+                            if(data.result=="success"){
+                                $("#modal_editproduct").modal("toggle");
+                                location.reload(true);
+                            }
+                        }
+                    });
+                }
+            });
+
+            //Custom Code
+            $("#add_type").on('switchChange.bootstrapSwitch', function (event, state) {
+                if($(this).is(':checked')) {
+                    $('#add_typeform').css("display","flex");
+                    $(this).removeAttr('checked');
+                } else {
+                    $('#add_typeform').css("display","none");
+                    $(this).attr('checked','checked');
+                }
+            });
+
+            $("#edit_type").on('switchChange.bootstrapSwitch', function (event, state) {
+                if($(this).is(':checked')) {
+                    $('#edit_typeform').css("display","flex");
+                    $(this).removeAttr('checked');
+                } else {
+                    $('#edit_typeform').css("display","none");
+                    $(this).attr('checked','checked');
+                }
+            });
+
+            $("#edit_markup, #edit_cost").keyup(function () {
+                var cost = parseFloat($("#edit_cost").val());
+                var markup = parseFloat($("#edit_markup").val());
+                var times = 0;
+
+                if($.isNumeric(cost) && $.isNumeric(markup)){
+                    times = (100 + markup) / 100;
+                    $("#edit_retail").val((cost * times).toFixed(2))
+                }
+            });
+
+            $("#edit_retail").keyup(function () {
+                var retail = parseFloat($("#edit_retail").val());
+                var markup = parseFloat($("#edit_markup").val());
+                var times = 0;
+
+                if($.isNumeric(retail) && $.isNumeric(markup)){
+                    times = 100 + markup;
+                    $("#edit_cost").val((retail / times * 100).toFixed(2))
+                }
+            });
+
+            $("#add_markup, #add_cost").keyup(function () {
+                var cost = parseFloat($("#add_cost").val());
+                var markup = parseFloat($("#add_markup").val());
+                var times = 0;
+
+                if($.isNumeric(cost) && $.isNumeric(markup)){
+                    times = (100 + markup) / 100;
+                    $("#add_retail").val((cost * times).toFixed(2))
+                }
+            });
+
+            $("#add_retail").keyup(function () {
+                var retail = parseFloat($("#add_retail").val());
+                var markup = parseFloat($("#add_markup").val());
+                var times = 0;
+
+                if($.isNumeric(retail) && $.isNumeric(markup)){
+                    times = 100 + markup;
+                    $("#add_cost").val((retail / times * 100).toFixed(2))
+                }
+            });
+        });
+
+    </script>
+{% endblock %}

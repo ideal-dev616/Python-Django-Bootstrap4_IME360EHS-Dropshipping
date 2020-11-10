@@ -1,0 +1,34 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>IME.360EHS</title>
+        {% load static %}
+        
+        <link href="{% static 'dist/css/pages/login-register-lock.css' %}" rel="stylesheet">
+        {% block stylesheet %}{% endblock %}
+        <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'custom.css' %}" rel="stylesheet" type="text/css" />
+
+        {% block styleblock %}{% endblock %}
+    </head>
+    <body>
+        <div class="preloader">
+            <div class="loader">
+                <div class="loader__figure"></div>
+                <p class="loader__label">Elite admin</p>
+            </div>
+        </div>
+        {% block body %}{% endblock %}
+        
+        <script type="text/javascript" src="{% static 'assets/node_modules/jquery/jquery-3.2.1.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/popper/popper.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+        {% block javascript %}{% endblock %}
+        
+    </body>
+</html>

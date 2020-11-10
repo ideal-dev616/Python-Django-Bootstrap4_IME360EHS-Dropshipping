@@ -1,0 +1,221 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/dropify/dist/css/dropify.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'dist/css/pages/bootstrap-switch.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block body %}
+    <div class="page-wrapper">
+        <div class="container-fluid" style="padding: 0 70px;">
+            <div class="row page-titles">
+                <div class="col-md-5 align-self-center">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active">Clinics</li>
+                    </ol>
+                </div>
+                <div class="col-md-7 align-self-center text-right">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <button type="button" onclick="location.href = `{% url 'addClinic' %}`;" class="btn btn-primary d-none d-lg-block m-l-15" id="btn_addclinic"><i
+                                class="fa fa-plus-circle"></i> Add Clinic</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body" style="padding: 1.25rem 0;">
+                            <div class="table-responsive">
+                                <table id="tbl_clinics" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Clinic Name</th>
+                                            <th>Website</th>
+                                            <th>Shipping Cost ($)</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Clinic Name</th>
+                                            <th>Website</th>
+                                            <th>Shipping Cost ($)</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        {% for clinic in clinics %}
+                                        <tr id="{{clinic.id}}">
+                                            <td>{{clinic.clinic_name}}</td>
+                                            <td>{{clinic.website}}</td>
+                                            <td>{{clinic.ship_cost}}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-xs" role="group">
+                                                    <button type="button" onclick="edit_clinicuser(this)" class="btn btn-secondary"><span class="fas fa-pencil-alt" aria-hidden="true"></span></button> 
+                                                    <button type="button" class="btn btn-secondary footable-delete btn_deleteclinic"><span class="fas fa-trash-alt" aria-hidden="true"></span></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div id="modal_editclinic" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Edit User</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form class="form-horizontal p-t-20">
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <label style="float:left;" class="p-b-5">User Role</label>
+                                                            <select class="custom-select col-12" id="select_userrole">
+                                                                <option value="1" selected>System Admin</option>
+                                                                <option value="2">Clinic User</option>
+                                                                <option value="3">Clinic Manager</option>
+                                                                <option value="4">Supplier</option>
+                                                                <option value="5">Intake Agent</option>
+                                                                <option value="6">Technictian</option>
+                                                                <option value="7">Doctor</option>
+                                                                <option value="8">Assessment Admin</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="fname" placeholder="Firstname">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-user"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="lname" placeholder="Lastname">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-user"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12 bt-switch">
+                                                            <label>Status:&nbsp;</label>
+                                                            <input type="checkbox" checked data-on-color="success" data-off-color="danger" data-on-text="<i class='ti-check'></i>&nbsp;&nbsp;Active" data-off-text="<i class='ti-close'></i>&nbsp;&nbsp;Off">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="email" class="form-control" id="email" placeholder="Enter email">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-email"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="phone" placeholder="Phone Number">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="icon-phone"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="extension" placeholder="Extension">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="password" class="form-control" id="pass3" placeholder="Enter pwd">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-lock"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="password" class="form-control" id="pass4" placeholder="Re Enter pwd">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-lock"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <label style="float:left;" class="p-b-5">Upload signature</label>
+                                                            <input type="file" id="input-file-now-custom-1" class="dropify" data-default-file="/static/assets/node_modules/dropify/src/images/test-image-1.jpg" />
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-primary waves-effect waves-light">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="modal_deleteclinic" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Confirm</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                <button type="button" class="btn btn-primary waves-effect waves-light">Yes, Delete this user</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/dropify/dist/js/dropify.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.js' %}"></script>
+
+    <script type="text/javascript">
+        function edit_clinicuser(elm){
+            var id = $(elm).parent().parent().parent().attr("id");
+            window.location.replace("/clinic/edit?id=" + id);
+        }
+        $(".bt-switch input[type='checkbox'], .bt-switch input[type='radio']").bootstrapSwitch();
+        $(document).ready(function() {
+            
+            $('#tbl_clinics').DataTable();
+            $('.dropify').dropify();
+            
+            $(".btn_deleteclinic").on('click', function(){
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/delete/clinic/",
+                    data: {
+                        'id' : $(this).parent().parent().parent().attr("id"),
+                    },
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    dataType: 'json',
+                    success: function (data)
+                    {
+                        location.reload(true);
+                    }
+                });
+            });
+        });
+
+    </script>
+{% endblock %}

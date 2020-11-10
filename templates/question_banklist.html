@@ -1,0 +1,293 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block body %}
+<div class="page-wrapper">
+    <div class="container-fluid" style="padding: 0 70px;">
+        <div class="row page-titles">
+            <div class="col-md-5 align-self-center">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                    <li class="breadcrumb-item active">Question Bank List</li>
+                </ol>
+            </div>
+            <div class="col-md-7 align-self-center text-right">
+                <div class="d-flex justify-content-end align-items-center">
+                    <div id="modal_addquestion" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Add Question</h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="form_addquestion" class="form-horizontal p-t-20">
+                                        <div class="alert alert-danger" id="add_errormsg_exist" style="text-align: left;"></div>
+                                        {% csrf_token %}
+                                        <div class="form-group row">
+                                            <div class="col-12">
+                                                <label style="float:left;" class="p-b-5">Referral Agency</label>
+                                                <select class="custom-select col-12" id="add_agency">
+                                                    {% for agency in ReferralAgency %}
+                                                    <option value="{{agency.id}}" selected>{{agency.name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-12">
+                                                <label style="float:left;" class="p-b-5">Question Type</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="add_questiontype" name="add_questiontype" placeholder="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="col-12">
+                                                <label style="float:left;" class="p-b-5">Question</label>
+                                                <textarea class="form-control" id="add_question" name="add_question" rows="5"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" data-toggle="modal" data-target="#modal_addquestion" class="btn btn-primary d-none d-lg-block m-l-15" id="btn_addquestion"><i
+                            class="fa fa-plus-circle"></i> Add Question</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding: 1.25rem 0;">
+                        <div class="table-responsive">
+                            <table id="myTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th width="150">Referral Agency</th>
+                                        <th width="150">Type</th>
+                                        <th>Question</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th width="150">Referral Agency</th>
+                                        <th width="150">Type</th>
+                                        <th>Question</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                    {% for question in Questions %}
+                                    <tr id="{{question.0}}">
+                                        <td class="td_agency" value="{{question.1}}">{{question.2}}</td>
+                                        <td class="td_questiontype">{{question.3}}</td>
+                                        <td class="td_question">{{question.4}}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-xs" role="group">
+                                                <button type="button" onclick="initial_editform(this)" data-toggle="modal" data-target="#modal_editquestion" class="btn btn-secondary"><span class="fas fa-pencil-alt" aria-hidden="true"></span></button> 
+                                                <button type="button" class="btn btn-secondary footable-delete btn_deletequestion"><span class="fas fa-trash-alt" aria-hidden="true"></span></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div id="modal_editquestion" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Edit Question</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="form_editquestion" class="form-horizontal p-t-20">
+                                                <div class="alert alert-danger" id="edit_errormsg_exist" style="text-align: left;"></div>
+                                                {% csrf_token %}
+                                                <div class="form-group row">
+                                                    <div class="col-12">
+                                                        <label style="float:left;" class="p-b-5">Referral Agency</label>
+                                                        <select class="custom-select col-12" id="edit_agency">
+                                                            {% for agency in ReferralAgency %}
+                                                            <option value="{{agency.id}}" selected>{{agency.name}}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-12">
+                                                        <label style="float:left;" class="p-b-5">Question Type</label>
+                                                        <div class="input-group">
+                                                            <input type="text" class="form-control" id="edit_questiontype" name="edit_questiontype" placeholder="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-12">
+                                                        <label style="float:left;" class="p-b-5">Question</label>
+                                                        <textarea class="form-control" id="edit_question" name="edit_question" rows="5"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+
+    <script type="text/javascript">
+        function initial_editform(elm){
+            trow = $(elm).parent().parent().parent();
+            $("#form_editquestion").val(trow.attr("id"));
+            $("#edit_agency").val(trow.children(".td_agency").attr("value"));
+            $("#edit_questiontype").val(trow.children(".td_questiontype").text());
+            $("#edit_question").val(trow.children(".td_question").text());
+        }
+        
+        $(document).ready(function() {
+            $('#myTable').DataTable();
+            
+
+            $("#add_errormsg_exist").css("display","none");
+            $("#edit_errormsg_exist").css("display","none");
+
+            $('#form_addquestion').validate({
+                rules: {
+                    add_questiontype: {
+                        required: true
+                    },
+                    add_question: {
+                        required: true
+                    }
+                },
+                errorPlacement: function(){
+                    return false;
+                }                
+            });
+
+            $('#form_editquestion').validate({
+                rules: {
+                    edit_questiontype: {
+                        required: true
+                    },
+                    edit_question: {
+                        required: true
+                    }
+                },
+                errorPlacement: function(){
+                    return false;
+                }                
+            });
+
+            $("#form_addquestion").submit(function(e){
+                e.preventDefault();
+                
+                var formData = new FormData();
+                formData.append("add_agency", $("#add_agency").val());
+                formData.append("add_questiontype", $("#add_questiontype").val());
+                formData.append("add_question", $("#add_question").val());
+                
+                if($(this).valid()){
+                    $("#add_errormsg_exist").html("");
+                    $("#add_errormsg_exist").css("display", "none");
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: "/ajax/add_question/",
+                        data: formData,
+                        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                        processData: false,
+                        cache: false,
+                        contentType: false,
+                        success: function (data)
+                        {
+                            if(data.result=="exist"){
+                                $("#add_errormsg_exist").html('<i class="ti-user"></i>&nbsp;&nbsp;&nbsp;This Question already exists.');
+                                $("#add_errormsg_exist").css("display", "block");
+                            }else if(data.result=="success"){
+                                $("#modal_addquestion").modal("toggle");
+                                location.reload(true);
+                            }
+                        }
+                    });
+                }
+            });
+
+            $("#form_editquestion").submit(function(e){
+                e.preventDefault();
+                
+                var formData = new FormData();
+                formData.append("edit_id", $(this).val());
+                formData.append("edit_agency", $("#edit_agency").val());
+                formData.append("edit_questiontype", $("#edit_questiontype").val());
+                formData.append("edit_question", $("#edit_question").val());
+                
+                if($(this).valid()){
+                    $("#edit_errormsg_exist").html("");
+                    $("#edit_errormsg_exist").css("display", "none");
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: "/ajax/edit_question/",
+                        data: formData,
+                        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                        processData: false,
+                        cache: false,
+                        contentType: false,
+                        success: function (data)
+                        {
+                            if(data.result=="exist"){
+                                $("#edit_errormsg_exist").html('<i class="ti-user"></i>&nbsp;&nbsp;&nbsp;This Question already exists.');
+                                $("#edit_errormsg_exist").css("display", "block");
+                            }else if(data.result=="success"){
+                                $("#modal_editquestion").modal("toggle");
+                                location.reload(true);
+                            }
+                        }
+                    });
+                }
+            });
+
+            $(".btn_deletequestion").on('click', function(){
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/delete_question/",
+                    data: {
+                        'id' : $(this).parent().parent().parent().attr("id"),
+                    },
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    dataType: 'json',
+                    success: function (data)
+                    {
+                        location.reload(true);
+                    }
+                });
+            });
+
+        });
+
+    </script>
+{% endblock %}

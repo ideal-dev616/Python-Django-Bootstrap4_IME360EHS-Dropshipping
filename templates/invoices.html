@@ -1,0 +1,273 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/dropify/dist/css/dropify.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'dist/css/pages/bootstrap-switch.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block body %}
+    <div class="page-wrapper">
+        <div class="container-fluid" style="padding: 0 70px;">
+            <div class="row page-titles">
+                <div class="col-md-5 align-self-center">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active">Invoices & Status</li>
+                    </ol>
+                </div>
+                <div class="col-md-7 align-self-center text-right">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <button type="button" class="btn btn-primary d-none d-lg-block m-l-15" id="btn_saveStatus">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body" style="padding: 1.25rem 0;">
+                            <div class="table-responsive">
+                                <table id="tbl_invoice" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice #</th>
+                                            <th>Date Invoiced</th>
+                                            <th>Payment Status</th>
+                                            <th width="120">Packing Slip</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Invoice #</th>
+                                            <th>Date Invoiced</th>
+                                            <th>Payment Status</th>
+                                            <th width="120">Packing Slip</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        {% for invoice in invoices %}
+                                        <tr id="{{invoice.0}}">
+                                            <td>{{invoice.0}}</td>
+                                            <td>{{invoice.1}}</td>
+                                            <td style = "padding: 5px 1rem;">
+                                                <select class="custom-select col-12 paymentStatus" style="padding: 1px 7px; height: 25px;" name="paymentStatus">
+                                                    {% if invoice.2 == "Not Sent" %}
+                                                    <option value="Not Sent" selected>Not Sent</option>
+                                                    <option value="Paid">Paid</option>
+                                                    {% elif invoice.2 == "Paid" %}
+                                                    <option value="Not Sent">Not Sent</option>
+                                                    <option value="Paid" selected>Paid</option>
+                                                    {% endif %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-xs" role="group">
+                                                    <button type="button" style="padding: 1px 15px; height: 25px;" onclick="upload_packingslip(this)" data-toggle="modal" data-target="#modal_packingslip" class="btn btn-secondary"><span class="fas fa-upload" aria-hidden="true"></span></button>
+                                                    {% if invoice.4 != "" %}
+                                                    <a href="{{request.session.absoluteRoute}}{{invoice.4}}" download class="btn btn-secondary">
+                                                        <span class="fas fa-download" aria-hidden="true" style="color: black;">
+                                                        </span>
+                                                    </a>
+                                                    <button type="button" style="padding: 1px 15px; height: 25px;" onclick="upload_packingslip(this)" class="btn btn-secondary" id="btn_deletepackingslip"><span class="fas fa-trash-alt" aria-hidden="true"></span></button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div id="modal_packingslip" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Upload Packing Slip File</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form class="form-horizontal p-t-20" id="form_packingslip">
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <input type="file" id="file_packingslip" name="file_packingslip" class="dropify" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/dropify/dist/js/dropify.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.js' %}"></script>
+
+    <script type="text/javascript">
+        $(".bt-switch input[type='checkbox'], .bt-switch input[type='radio']").bootstrapSwitch();
+
+        var selectedId = "";
+
+        function upload_packingslip(elm){
+            selectedId = $(elm).parent().parent().parent().attr("id");
+        }
+
+        $(document).ready(function() {
+            $('#tbl_invoice').DataTable({
+                "order": [[ 2, 'desc' ]]
+            });
+
+            $('.dropify').dropify();
+
+            $("#btn_saveStatus").on('click', function(){
+                var formData = new FormData();
+
+                var idArr = [];
+                $("#tbl_invoice").find("tbody").find("tr").each(function(){
+                    invoiceId = $(this).attr("id");
+                    paymentStatus = $(this).find(".paymentStatus").val();
+
+                    row = {'invoiceId':invoiceId, 'paymentStatus':paymentStatus};
+                    idArr.push(row);
+                });
+
+                formData.append("idArr", JSON.stringify(idArr));
+
+                if (idArr.length > 0){
+                    $.ajax({
+                        type: "POST",
+                        url: "/ajax/save/invoice_status/",
+                        data: formData,
+                        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                        processData: false,
+                        cache: false,
+                        contentType: false,
+                        success: function (data)
+                        {
+                            if(data.result=="success"){
+                                Swal.fire({
+                                    icon: "success",
+                                    title: 'Success',
+                                    text: "The Order is successfully placed.",
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#00c292',
+                                    confirmButtonText: 'OK'
+                                })
+                            }else if(data.result=="exist"){
+                                Swal.fire({
+                                    icon: "warning",
+                                    title: 'Warning',
+                                    text: "The Order ID already exists.",
+                                    type: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#00c292',
+                                    confirmButtonText: 'OK'
+                                })
+                            }
+                        }
+                    });
+                }else{
+                    Swal.fire({
+                        icon: "warning",
+                        title: 'Warning',
+                        text: "There are no data to update.",
+                        type: 'warning',
+                        showCancelButton: false,
+                        confirmButtonColor: '#00c292',
+                        confirmButtonText: 'OK'
+                    })
+                }                
+            });
+
+            $("#form_packingslip").submit(function(e){
+                e.preventDefault();
+                var formData = new FormData();
+
+                var file_packingslip = $("#file_packingslip")[0].files[0];
+                formData.append("file_packingslip", file_packingslip);
+                formData.append("backorderId", selectedId);
+
+                console.log(file_packingslip);
+                
+                if($(this).valid()){              
+                    if(file_packingslip != null){
+                        $.ajax({
+                            type: "POST",
+                            url: "/ajax/upload/packing_slip/",
+                            data: formData,
+                            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                            processData: false,
+                            cache: false,
+                            contentType: false,
+                            success: function (data)
+                            {
+                                console.log(data.result);
+                                if(data.result=="success"){
+                                    $("#modal_packingslip").modal("toggle");
+                                    location.reload(true);
+                                }
+                            }
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: "warning",
+                            title: 'Warning',
+                            text: "Drag and drop a file or click to upload packing slip document.",
+                            type: 'warning',
+                            showCancelButton: false,
+                            confirmButtonColor: '#00c292',
+                            confirmButtonText: 'OK'
+                        })
+                    }
+                }
+            });
+        
+            $("#btn_deletepackingslip").on('click', function(){
+                var formData = new FormData();
+
+                formData.append("backorderId", selectedId);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/delete/packing_slip/",
+                    data: formData,
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    processData: false,
+                    cache: false,
+                    contentType: false,
+                    success: function (data)
+                    {
+                        console.log(data.result);
+                        if(data.result=="success"){
+                            Swal.fire({
+                                icon: "success",
+                                title: 'Success',
+                                text: "The packing slip is successfully deleted.",
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#00c292',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                location.reload(true);
+                            })
+                            
+                        }
+                    }
+                });
+            });
+        });
+
+    </script>
+{% endblock %}

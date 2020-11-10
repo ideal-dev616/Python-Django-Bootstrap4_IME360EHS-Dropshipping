@@ -1,0 +1,691 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+<link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet"
+    type="text/css" />
+<link href="{% static 'assets/node_modules/dropify/dist/css/dropify.min.css' %}" rel="stylesheet" />
+<link href="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.css' %}" rel="stylesheet" />
+<link href="{% static 'dist/css/pages/bootstrap-switch.css' %}" rel="stylesheet" />
+<link href="{% static 'dist/calendar/tavo-calendar.css' %}" rel="stylesheet" />
+
+{% endblock %}
+{% block body %}
+<div class="page-wrapper">
+    <div class="container-fluid" style="padding: 0 70px;">
+        <div class="row page-titles">
+            <div class="col-md-3 align-self-center">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                    <li class="breadcrumb-item active">Invoices & Status</li>
+                </ol>
+            </div>
+            <div class="col-md-9 align-self-center text-right">
+                <div class="d-flex justify-content-end align-items-center">
+                    <div style="width: 15px;
+                                    height: 15px;
+                                    background: #81CB4D;
+                                    border-radius: 50%;
+                                    border: 1px solid #81CB4D;"></div>
+                    <label for="example-datetime-local-input" class="col-form-label"
+                        style="text-align: right;">&nbsp;&nbsp;Available</label>
+                    <div style="width: 15px;
+                                    height: 15px;
+                                    background-image: linear-gradient(45deg, #d4d4d4 25%, #fcfcfc 25%, #fcfcfc 50%, #d4d4d4 50%, #d4d4d4 75%, #fcfcfc 75%, #fcfcfc 100%);
+                                    background-size: 4px 4px;
+                                    border-radius: 50%;
+                                    border: 1px solid white;" class="m-l-30"></div>
+                    <label for="example-datetime-local-input" class="col-form-label"
+                        style="text-align: right;">&nbsp;&nbsp;Booked</label>
+                    <div style="width: 15px;
+                                    height: 15px;
+                                    background: white;
+                                    border-radius: 50%;
+                                    border: 1px solid #d4d4d4;" class="m-l-30"></div>
+                    <label for="example-datetime-local-input" class="col-form-label"
+                        style="text-align: right;">&nbsp;&nbsp;Not available</label>
+                    <div style="width: 15px;
+                                    height: 15px;
+                                    background-image: linear-gradient(45deg, #81CB4D 25%, #fcfcfc 25%, #fcfcfc 50%, #81CB4D 50%, #81CB4D 75%, #fcfcfc 75%, #fcfcfc 100%);
+                                    background-size: 4px 4px;
+                                    border-radius: 50%;
+                                    border: 1px solid white;" class="m-l-30"></div>
+                    {% if request.session.userrole == "System Admin" %}
+                    <label for="example-datetime-local-input" class="col-form-label"
+                        style="text-align: right;">&nbsp;&nbsp;Booked by you</label>
+                    {% elif request.session.userrole == "Intake Agent" %}
+                    <label for="example-datetime-local-input" class="col-form-label"
+                        style="text-align: right;">&nbsp;&nbsp;Booked for me</label>
+                    {% endif %}
+                    {% if request.session.userrole == "System Admin" or request.session.userrole == "Referral Source" or request.session.userrole == "Intake Agent" %}
+                    <label for="example-datetime-local-input" class="col-form-label m-l-40 m-r-10"
+                        style="text-align: right;">Doctor :</label>
+                    <select class="form-control col-3" width="300" id="select_doctor">
+                        {% for item in doctors %}
+                        <option value="{{item.id}}">{{item.first_name}} {{item.last_name}}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-9">
+                                <div class="table-responsive"
+                                    style="overflow-x: unset !important; margin-top: 0px;">
+                                    <table id="tbl_scheduler" class="table table-bordered table-striped">
+                                        <thead>
+
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div id="my-calendar" style="margin-top:87px;"></div>
+                                {% if request.session.userrole == "Doctor" %}
+                                <button type="button" class="btn btn-info d-none d-lg-block m-t-40" style="width:100%;"
+                                    id="btn_clearAll">Clear All</button>
+                                <button type="button" class="btn btn-primary d-none d-lg-block m-t-20"
+                                    style="width:100%;" id="btn_sendUpdateToEHS">Send Updates</button>
+                                {% elif request.session.userrole == "Referral Source" %}
+                                <button type="button" class="btn btn-primary d-none d-lg-block m-t-20"
+                                    style="width:100%;" id="btn_requestAvailabilityToEHS">Request Doctors'
+                                    Availability</button>
+                                {% elif request.session.userrole == "System Admin" %}
+                                <button type="button" class="btn btn-primary d-none d-lg-block m-t-20"
+                                    style="width:100%;" id="btn_requestAvailabilityToDoctor">Request Availability to
+                                    Doctors</button>
+                                <button type="button" class="btn btn-primary d-none d-lg-block m-t-20"
+                                    style="width:100%;" id="btn_sendUpdateToRS">Send Update To Referral Source</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="modal_schedule" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+            style="display: none;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">
+                            
+                        </h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-material p-l-30 p-r-30" id="form_packingslip">
+                            <div class="form-group row">
+                                <i class="mdi mdi-account-outline"
+                                    style="transform:scale(1.5);margin:1px 10px 0px 2px;"></i><label>Intake
+                                    Agent</label>
+                                <select class="form-control" id="select_intakeagent">
+                                    {% for item in agents %}
+                                    <option value="{{item.id}}">{{item.first_name}} {{item.last_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <i class="ti-location-pin"
+                                    style="transform:scale(1.5);margin:6px 10px 0px 2px;"></i><label>Location</label>
+                                <select class="form-control" id="select_assesslocation">
+                                    {% for item in locations %}
+                                    <option value="{{item.id}}">{{item.clinic}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </form>
+                        <div class="modal-footer" style="padding-bottom: 30px;">
+                            <button type="button" id="btn_cancelSelect" class="btn btn-default waves-effect"
+                                data-dismiss="modal">Cancel</button>
+                            {% if request.session.userrole == "System Admin" %}
+                            <button type="button" id="btn_saveSelect"
+                                class="btn btn-primary waves-effect waves-light">Save</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript"
+    src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'assets/node_modules/dropify/dist/js/dropify.min.js' %}"></script>
+<script type="text/javascript"
+    src="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.js' %}"></script>
+
+<!-- With locals-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"></script>
+<!-- Without locals-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="{% static 'dist/calendar/tavo-calendar.js' %}"></script>
+
+<script type="text/javascript">
+    $(".bt-switch input[type='checkbox'], .bt-switch input[type='radio']").bootstrapSwitch();
+
+    var selectedId = "";
+    var isMouseDown = false, col = 1, row_pre = 0, row = 0, bigger = 0, smaller = 0, flag = true;
+    var cells = [];
+    var bookedFlag = false;
+    var startTime, endTIme;
+
+    var calendar = document.querySelector("#my-calendar");
+    var week_day = [];
+    var arr_day = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+    var times = ["00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30", "04:00", "04:30", "05:00", "05:30", "06:00",
+                "06:30", "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", 
+                "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00",
+                "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30", "24:00"];
+
+    const myCalendar = new TavoCalendar(calendar, {
+        // date: "2020-03-15"
+    });
+
+    calendar.addEventListener('calendar-select', function () {
+        deselectAll();
+        selectedDate = new Date(myCalendar.getSelected());
+        setWeekDates(selectedDate);
+        changeHeader();
+        if ("{{request.session.userrole}}" == "Doctor") {
+            getTimeSheet("{{request.session.userid}}");
+        } else {
+            selectedDoctor = $("#select_doctor").val();
+            getTimeSheet(selectedDoctor);
+        }
+        getScheduled();
+    });
+
+    function setWeekDates(date) {
+        day_idx = date.getDay();
+        week_day = [];
+
+        for (var i = 0; i < 7; i++) {
+            var requiredDate = "";
+            if (day_idx == 6) {
+                requiredDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + i + 1);
+            } else {
+                requiredDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - day_idx + i);
+            }
+            day = ("0" + requiredDate.getDate()).slice(-2);
+            month = ("0" + (requiredDate.getMonth() + 1)).slice(-2);
+            year = requiredDate.getFullYear();
+            week_day.push(year + "-" + month + "-" + day);
+        }
+    }
+
+    function setWeekDates1(date) {
+        day_idx = date.getDay();
+        week_day = [];
+
+        for (var i = 0; i < 7; i++) {
+            var requiredDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - day_idx + i);
+            day = ("0" + requiredDate.getDate()).slice(-2);
+            month = ("0" + (requiredDate.getMonth() + 1)).slice(-2);
+            year = requiredDate.getFullYear();
+            week_day.push(year + "-" + month + "-" + day);
+        }
+    }
+
+    function getTimeSheet(userId) {
+        var formData = new FormData();
+        formData.append("week_day", JSON.stringify(week_day));
+        formData.append("userId", userId);
+
+        $.ajax({
+            type: "POST",
+            url: "/ajax/getScheduleSheet/",
+            data: formData,
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                if (data.indexArr == "none") {
+                    deselectAll();
+                } else {
+                    indexArr = JSON.parse(data.indexArr);
+                    for (var i = 0; i < indexArr.length; i++) {
+                        var cell = $('#tbl_scheduler').find("tr:eq(" + (indexArr[i][0] + 1) + ")").find("td:eq(" + indexArr[i][1] + ")");
+                        cell.toggleClass("selected", true);
+                    }
+                }
+            }
+        });
+    }
+
+    function saveTimeSheet() {
+        var coord = [];
+        $("#tbl_scheduler td.selected").each(function () {
+            var col = $(this).parent().children().index($(this));
+            var row = $(this).parent().parent().children().index($(this).parent());
+            coord.push([row, col]);
+        });
+
+        var formData = new FormData();
+        formData.append("week_day", JSON.stringify(week_day));
+        formData.append("coord", JSON.stringify(coord));
+        if ("{{request.session.userrole}}" == "Doctor") {
+            formData.append("userId", "{{request.session.userid}}");
+            formData.append("status", "available");
+        } else {
+            selectedDoctor = $("#select_doctor").val();
+            formData.append("userId", selectedDoctor);
+            formData.append("status", "scheduled");
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/ajax/saveScheduleSheet/",
+            data: formData,
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                console.log(data.result);
+            }
+        });
+    }
+
+    function changeHeader() {
+        $('#tbl_scheduler').find('thead').html(`
+                <tr>
+                    <th width="120"></th>
+                    <th width="120">SUN<br><div class="th_date">` + week_day[0].split("-")[2] + `</div></th>
+                    <th width="120">MON<br><div class="th_date">` + week_day[1].split("-")[2] + `</div></th>
+                    <th width="120">TUE<br><div class="th_date">` + week_day[2].split("-")[2] + `</div></th>
+                    <th width="120">WED<br><div class="th_date">` + week_day[3].split("-")[2] + `</div></th>
+                    <th width="120">THU<br><div class="th_date">` + week_day[4].split("-")[2] + `</div></th>
+                    <th width="120">FRI<br><div class="th_date">` + week_day[5].split("-")[2] + `</div></th>
+                    <th width="120">SAT<br><div class="th_date">` + week_day[6].split("-")[2] + `</div></th>
+                </tr>
+            `);
+    }
+
+    function deselectAll() {
+        $("#tbl_scheduler td").each(function () {
+            $(this).attr("class", "");
+        });
+    }
+
+    function getScheduled() {
+        var formData = new FormData();
+        formData.append("weekId", JSON.stringify(week_day));
+        if("{{request.session.userrole}}" == "Doctor"){
+            formData.append("doctorId", "{{request.session.userid}}");
+        }else{
+            formData.append("doctorId", $("#select_doctor").val());
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/ajax/getScheduled/",
+            data: formData,
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                for (var i = 0; i < data.data.length; i++) {
+                    var row = JSON.parse(data.data[i][1]);
+                    
+                    for (var j = 0; j < row.length; j++) {
+                        var cell = $('#tbl_scheduler').find("tr:eq(" + (row[j][0] + 1) + ")").find("td:eq(" + row[j][1] + ")");
+                        cell.attr("intakeAgent", data.data[i][2]);
+                        cell.attr("locationId", data.data[i][3]);
+                        cell.attr("startTime", times[row[0][0]]);
+                        cell.attr("endTime", times[row[row.length - 1][0]]);
+                        cell.attr("idval", data.data[i][0]);
+                        cell.toggleClass("selected", false);
+                        if("{{request.session.userrole}}" == "Intake Agent"){
+                            if("{{request.session.userid}}" == data.data[i][2]){
+                                cell.toggleClass("scheduled-by-me", true);
+                            }else{
+                                cell.toggleClass("scheduled", true);
+                            }
+                        }else{
+                            if("{{request.session.userid}}" == data.data[i][4]){
+                                cell.toggleClass("scheduled-by-me", true);
+                            }else{
+                                cell.toggleClass("scheduled", true);
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        setWeekDates1(new Date(), "first");
+        if ("{{request.session.userrole}}" == "Doctor") {
+            getTimeSheet("{{request.session.userid}}");
+        } else {
+            selectedDoctor = $("#select_doctor").val();
+            getTimeSheet(selectedDoctor);
+        }
+
+        $('.dropify').dropify();
+
+        tbody = "";
+        for (var i = 0; i < times.length; i++) {
+            tbody += `
+                    <tr>
+                        <td>` + times[i] + `</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                `;
+        }
+        $('#tbl_scheduler').find('tbody').html(tbody);
+        changeHeader();
+        getScheduled();
+
+        // Select or Deselect table cells.
+        $('tr').bind('selectstart', function (event) {
+            // Disable Table Selection
+            event.preventDefault();
+        });
+
+        $("#tbl_scheduler td")
+            .mousedown(function () {
+                isMouseDown = true;
+                col = $(this).parent().children().index($(this));
+                row_pre = $(this).parent().parent().children().index($(this).parent());
+
+                if ($(this).hasClass("selected")) {
+                    $(this).toggleClass("selected", false);
+                    $(this).toggleClass("select", true);
+                    startTime = times[row_pre];
+                    bookedFlag = true;
+                    flag = false;
+                    cells.push([row_pre, col]);
+                }else if($(this).hasClass("scheduled") || $(this).hasClass("scheduled-by-me")){
+                    startTime = times[row_pre];
+                    bookedFlag = true;
+                }
+                if ("{{request.session.userrole}}" == "Doctor") {
+                    if (col > 0) {
+                        $(this).toggleClass("selected");
+                    }
+                }
+            })
+            .mouseover(function () {
+                if (isMouseDown && col > 0) {
+                    row = $(this).parent().parent().children().index($(this).parent());
+                    bigger = row;
+                    smaller = row_pre;
+                    if (row_pre > row) {
+                        bigger = row_pre;
+                        smaller = row;
+                    }
+
+                    if ("{{request.session.userrole}}" == "Doctor") {
+                        for (var i = smaller; i <= bigger; i++) {
+                            var cell = $('#tbl_scheduler').find("tr:eq(" + (i + 1) + ")").find("td:eq(" + col + ")");
+                            cell.toggleClass("selected", flag);
+                        }
+                    } else if ("{{request.session.userrole}}" == "System Admin") {
+                        bookedFlag = true;
+                        cells = [];
+                        for (var i = smaller; i <= bigger; i++) {
+                            var cell = $('#tbl_scheduler').find("tr:eq(" + (i + 1) + ")").find("td:eq(" + col + ")");
+                            if (cell.hasClass("selected") || cell.hasClass("select")) {
+                                cells.push([i, col])
+                            } else {
+                                cells = [];
+                                bookedFlag = false;
+                            }
+                        }
+
+                        if (bookedFlag) {
+                            for (var i = 0; i < cells.length; i++) {
+                                var cell = $('#tbl_scheduler').find("tr:eq(" + (cells[i][0] + 1) + ")").find("td:eq(" + cells[i][1] + ")");
+                                cell.toggleClass("selected", false);
+                                cell.toggleClass("select", true);
+                            }
+                        } else {
+                            cells = [];
+                            $('#tbl_scheduler td.select').each(function () {
+                                $(this).toggleClass("select", false);
+                                $(this).toggleClass("selected", true);
+                            });
+                        }
+
+                    }
+                }
+            })
+            .mouseup(function () {
+                isMouseDown = false;
+                flag = true;
+                if ("{{request.session.userrole}}" == "Doctor") {
+                    saveTimeSheet();
+                }
+
+                if (bookedFlag) {
+                    endTime = times[bigger];
+                    if (bigger == null || bigger == 0) {
+                        endTime = startTime;
+                    }
+
+                    if($(this).hasClass("select")){
+                        $(".modal-title").html(`
+                            <i class="mdi mdi-clock" style="transform:scale(1.5);margin:0px 10px 0px 2px;"></i>
+                            <label>` + arr_day[col] + `, ` + week_day[col - 1] + `&nbsp;&nbsp;&nbsp;` + startTime + ` - ` + endTime + `</label>
+                        `);
+                        $("#select_intakeagent").prop("selectedIndex", 0).val();
+                        $("#select_assesslocation").prop("selectedIndex", 0).val();
+                    }else if($(this).hasClass("scheduled") || $(this).hasClass("scheduled-by-me")){
+                        $(".modal-title").html(`
+                            <i class="mdi mdi-clock" style="transform:scale(1.5);margin:0px 10px 0px 2px;"></i>
+                            <label>` + arr_day[col] + `, ` + week_day[col - 1] + `&nbsp;&nbsp;&nbsp;` + $(this).attr("startTime") + ` - ` + $(this).attr("endTime") + `</label>
+                        `);
+                        $("#select_intakeagent").val($(this).attr("intakeagent"));
+                        $("#select_assesslocation").val($(this).attr("locationid"));
+                    }
+                    if($(this).attr("idval") != undefined){
+                        $("#modal_schedule").attr("value", $(this).attr("idval"));
+                    }else{
+                        $("#modal_schedule").attr("value", "none");
+                    }
+                    $("#modal_schedule").modal("toggle");
+                }
+                
+
+            });
+    });
+
+    $("#btn_saveTimeSheet").on('click', function () {
+        saveTimeSheet();
+    });
+
+    $("#btn_clearAll").on('click', function () {
+        deselectAll();
+        saveTimeSheet();
+    });
+
+    $("#select_doctor").on('change', function () {
+        deselectAll();
+        if ("{{request.session.userrole}}" == "Doctor") {
+            getTimeSheet("{{request.session.userid}}");
+        } else {
+            selectedDoctor = $("#select_doctor").val();
+            getTimeSheet(selectedDoctor);
+        }
+        getScheduled();
+    });
+
+    // Send Email for TimeSheet Request and Update
+    $("#btn_sendUpdateToEHS").on('click', function () {
+        $.ajax({
+            type: "POST",
+            url: "/ajax/sendSchedule/",
+            data: {},
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                if(data.result == "success"){
+                    Swal.fire({
+                        icon: "success",
+                        title: 'Success',
+                        text: "The updated Schedule Sheet is successfully sent to EHS.",
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#00c292',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            }
+        });
+    });
+
+    $("#btn_requestAvailabilityToEHS").on('click', function () {
+        $.ajax({
+            type: "POST",
+            url: "/ajax/requestSchedule/",
+            data: {},
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                if(data.result == "success"){
+                    Swal.fire({
+                        icon: "success",
+                        title: 'Success',
+                        text: "Time availability of Doctors is successfully requested to EHS.",
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#00c292',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            }
+        });
+    });
+
+    $("#btn_requestAvailabilityToDoctor").on('click', function () {
+        $.ajax({
+            type: "POST",
+            url: "/ajax/requestSchedule/",
+            data: {},
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                if(data.result == "success"){
+                    Swal.fire({
+                        icon: "success",
+                        title: 'Success',
+                        text: "Time availability is successfully requested to Doctors.",
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#00c292',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            }
+        });
+    });
+
+    $("#btn_sendUpdateToRS").on('click', function () {
+        $.ajax({
+            type: "POST",
+            url: "/ajax/sendSchedule/",
+            data: {},
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                if(data.result == "success"){
+                    Swal.fire({
+                        icon: "success",
+                        title: 'Success',
+                        text: "The updated Schedule Sheet is successfully sent to Referral Source.",
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#00c292',
+                        confirmButtonText: 'OK'
+                    })
+                }
+            }
+        });
+    });
+
+
+    // Modal Action
+    $("#btn_saveSelect").on('click', function () {
+        var formData = new FormData();
+        formData.append("weekId", JSON.stringify(week_day));
+        formData.append("indexArr", JSON.stringify(cells));
+        formData.append("doctorId", $("#select_doctor").val());
+        formData.append("intakeAgent", $("#select_intakeagent").val());
+        formData.append("locationId", $("#select_assesslocation").val());
+        formData.append("rowId", $("#modal_schedule").attr("value"));
+
+        console.log(week_day[cells[0][1] - 1]);
+        console.log(times[cells[0][0]]);
+
+        formData.append("scheduledTime", week_day[cells[0][1] - 1] + " " + times[cells[0][0]]);
+
+        $.ajax({
+            type: "POST",
+            url: "/ajax/saveScheduled/",
+            data: formData,
+            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+            processData: false,
+            cache: false,
+            contentType: false,
+            success: function (data) {
+                $('#tbl_scheduler td.select').each(function () {
+                    $(this).toggleClass("select");
+                    $(this).toggleClass("scheduled-by-me");
+                });
+                $("#modal_schedule").modal("toggle");
+                getScheduled();
+                cells = [];
+            }
+        });
+    });
+
+    $("#btn_cancelSelect").on('click', function () {
+        $("#modal_schedule").modal("toggle");
+        $('#tbl_scheduler td.select').each(function () {
+            $(this).toggleClass("select");
+            $(this).toggleClass("selected");
+        });
+    });
+
+    $("#modal_schedule").on('hidden.bs.modal', function () {
+        $('#tbl_scheduler td.select').each(function () {
+            $(this).toggleClass("select");
+            $(this).toggleClass("selected");
+        });
+        bookedFlag = false;
+    });
+
+    
+</script>
+{% endblock %}

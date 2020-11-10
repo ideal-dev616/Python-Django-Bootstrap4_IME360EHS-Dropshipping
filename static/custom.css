@@ -1,0 +1,161 @@
+tr td {
+    font-size: 13px;
+    font-weight: 100;
+}
+
+tr th {
+    font-size: 13px;
+}
+
+.light-logo {
+    padding: 11px 0px;
+}
+
+.error {
+    border: 1px solid #f00;
+}
+
+#errormsg_exist{
+    display: none;
+}
+
+.ms-container{
+    width:100%;
+}
+
+.wizard-content .wizard>.steps>ul>li.done .step {
+    background-color: #00c292;
+    border-color: #00c292;
+}
+
+.wizard-content .wizard.wizard-circle>.steps>ul>li:after, .wizard-content .wizard.wizard-circle>.steps>ul>li:before {
+    background-color: #00c292;
+}
+
+.wizard-content .wizard>.steps>ul>li.current .step {
+    border-color: #00c292;
+    color: #00c292;
+}
+
+.wizard-content .wizard>.actions>ul>li>a {
+    background: #00c292;
+}
+
+#tbl_assessDefault td, #tbl_orders td, #tbl_invoiceHistory td, #tbl_CreateInvoice td, #tblCreateOrder td, #tblCreateOrder1 td, #myTable td, #tbl_clinics td, #tbl_products td, #tbl_users td, #tbl_orderedproducts td, #tbl_invoice td, #tblInsertProduct td{
+    padding: 0px 5px 0px 5px !important;
+    line-height: 2;
+}
+
+#tbl_assessDefault th, #tbl_orders th, #tbl_invoiceHistory th, #tbl_CreateInvoice th, #tblCreateOrder th, #tblCreateOrder1 th, #myTable th, #tbl_clinics th, #tbl_products th, #tbl_users th, #tbl_orderedproducts th, #tbl_invoice th, #tblInsertProduct th{
+    padding: 3px 20px 3px 5px !important
+}
+
+.bg-light{
+    background-color:#f8f9fa !important
+}
+
+.col-submit-order{
+    position: fixed;
+    right: 15px;
+    flex: 0 0 29%;
+    max-width: 22%;
+}
+
+.table td {
+    padding: 10px 1rem;
+    vertical-align: top;
+    border-top: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.form-horizontal label {
+    /* font-weight: bold; */
+    font-size: 13px;
+}
+
+#tbl_scheduler thead th{
+    border: none;
+    text-align: center;
+}
+
+#tbl_scheduler tbody td.selected{
+    background: #81CB4D;
+}
+
+#tbl_scheduler tbody td.select{
+    background: #c5c5c5;
+}
+
+#tbl_scheduler tbody td.scheduled{
+    background-image: linear-gradient(45deg, #fcfcfc 27.78%, #d4d4d4 27.78%, #d4d4d4 50%, #fcfcfc 50%, #fcfcfc 77.78%, #d4d4d4 77.78%, #d4d4d4 100%);
+    background-size: 12.73px 12.73px;
+    border: 1px solid white;
+}
+
+#tbl_scheduler tbody td.scheduled-by-me{
+    background-image: linear-gradient(45deg, #fcfcfc 27.78%, #81CB4D 27.78%, #81CB4D 50%, #fcfcfc 50%, #fcfcfc 77.78%, #81CB4D 77.78%, #81CB4D 100%);
+    background-size: 12.73px 12.73px;
+    border: 1px solid white;
+}
+
+#tbl_scheduler tbody td{
+    text-align: right;
+    padding: 2px 1rem;
+}
+
+.th_date{
+    font-size: 23px;
+}
+
+#tbl_scheduler tbody tr:nth-of-type(odd) {
+    background: #ffffff;
+}
+
+.touchspin-padding{
+    text-align: center;
+}
+
+.touchspin-padding input{
+    outline: none;
+    border: 1px solid #c7c7c7;
+    height: 28px;
+    width: 75px;
+    text-align: center;
+}
+
+td[colspan="4"] {
+    background: #00c293;
+    color: white;
+}
+
+table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {
+    position: absolute;
+    bottom: 0.3em;
+    display: block;
+    opacity: 0.3;
+}
+
+/* Style - Tooltip */
+.tooltip-inner {
+    background-color: rgb(158, 158, 158);
+}
+.tooltip.bs-tooltip-right .arrow:before {
+    border-right-color: rgb(158, 158, 158) !important;
+}
+.tooltip.bs-tooltip-left .arrow:before {
+    border-left-color: rgb(158, 158, 158) !important;
+}
+.tooltip.bs-tooltip-bottom .arrow:before {
+    border-bottom-color: rgb(158, 158, 158) !important;
+}
+.tooltip.bs-tooltip-top .arrow:before {
+    border-top-color:rgb(158, 158, 158) !important;
+}
+
+.modal-title{
+    font-size: 15px;
+}
+
+.modal-header{
+    margin-right: 1px;
+}

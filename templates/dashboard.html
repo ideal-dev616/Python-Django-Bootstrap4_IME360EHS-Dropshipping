@@ -1,0 +1,33 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/dropify/dist/css/dropify.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'dist/css/pages/bootstrap-switch.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block body %}
+    <div class="page-wrapper">
+        <div class="container-fluid" style="padding: 0 70px;">
+            <div class="row page-titles">
+                <div class="col-md-5 align-self-center">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/dropify/dist/js/dropify.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.js' %}"></script>
+
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}

@@ -1,0 +1,269 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>IME.360EHS</title>
+        {% load sass_tags %}
+        {% load static %}
+        <link href="{% static 'assets/node_modules/toast-master/css/jquery.toast.css' %}" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300&family=Lato&family=Varta:wght@300&display=swap" rel="stylesheet">
+        {% block stylesheet %}{% endblock %}
+
+        <link href="{% static 'dist/css/style.min.css' %}" rel="stylesheet" />
+        <link href="{% static 'custom.css' %}" rel="stylesheet" />
+
+        {% block styleblock %}{% endblock %}
+    </head>
+    <body class="fixed-layout skin-green-dark">
+        <div class="preloader">
+            <div class="loader">
+                <div class="loader__figure"></div>
+                <p class="loader__label">Elite admin</p>
+            </div>
+        </div>
+        <div id="main-wrapper">
+            <header class="topbar">
+                <nav class="navbar top-navbar navbar-expand-md navbar-dark">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="{% url 'index' %}">
+                            <!-- Logo icon --><b>
+                                <!--You can put here icon as well // <i class="wi wi-sunset"></i> //-->
+                                <!-- Dark Logo icon -->
+                                <img src="/static/assets/images/logo-icon.png" alt="homepage" class="dark-logo" />
+                                <!-- Light Logo icon -->
+                                <img src="/static/assets/images/logo-light-icon.png" alt="homepage" class="light-logo" />
+                            </b>
+                            <!--End Logo icon -->
+                            <!-- Logo text --><span>
+                                <!-- dark Logo text -->
+                                <img src="/static/assets/images/logo-text.png" alt="homepage" class="dark-logo" />
+                                <!-- Light Logo text -->
+                                <img src="/static/assets/images/logo-light-text.png" class="light-logo" alt="homepage" /></span>
+                        </a>
+                    </div>
+                    <div class="navbar-collapse">
+                        <!-- toggle and nav items -->
+                        <ul class="navbar-nav mr-auto">
+                            <!-- This is  -->
+                            <li class="nav-item"> <a class="nav-link nav-toggler d-block d-md-none waves-effect waves-dark"
+                                    href="javascript:void(0)"><i class="ti-menu"></i></a> </li>
+                            <li class="nav-item"> <a
+                                    class="nav-link sidebartoggler d-none d-lg-block d-md-block waves-effect waves-dark"
+                                    href="javascript:void(0)"><i class="icon-menu"></i></a> </li>
+                        </ul>
+                        <!-- User profile and search -->
+                        <ul class="navbar-nav my-lg-0">
+                            <!-- Comment -->
+                            <li id="menu_notification" class="nav-item dropdown">
+                                <a id="nav_link_notification" class="nav-link dropdown-toggle waves-effect waves-dark" href="" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false"> <i class="ti-bell"></i>
+                                    <div class="notify"> <span class="heartbit"></span> <span class="point"></span> </div>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right mailbox animated bounceInDown">
+                                    <ul>
+                                        <li>
+                                            <div class="drop-title">Notifications</div>
+                                        </li>
+                                        <li>
+                                            <div class="message-center"></div>
+                                        </li>
+                                        <li>
+                                            <a class="nav-link text-center link" href="/orders"> <strong>Check all notifications</strong> <i class="fa fa-angle-right"></i> </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <!-- End Messages -->
+                            <li class="nav-item right-side-toggle"> <a class="nav-link  waves-effect waves-light"
+                                    href="javascript:void(0)"><i class="ti-settings"></i></a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+            <aside class="left-sidebar">
+                <!-- Sidebar scroll-->
+                <div class="scroll-sidebar">
+                    <!-- User Profile-->
+                    <div class="user-profile">
+                        <div class="user-pro-body">
+                            <div><img src="/static/assets/images/users/4.jpg" alt="user-img" class="img-circle"></div>
+                            <div class="dropdown">
+                                <a href="javascript:void(0)" class="dropdown-toggle u-dropdown link hide-menu"
+                                    data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{request.session.username}} <span class="caret"></span></a>
+                                <div class="dropdown-menu animated flipInY">
+                                    <!-- text-->
+                                    <a href="javascript:void(0)" class="dropdown-item"><i class="ti-user"></i> My Profile</a>
+                                    <!-- text-->
+                                    <a href="javascript:void(0)" class="dropdown-item"><i class="ti-email"></i> Inbox</a>
+                                    <!-- text-->
+                                    <div class="dropdown-divider"></div>
+                                    <!-- text-->
+                                    <a href="javascript:void(0)" class="dropdown-item"><i class="ti-settings"></i> Account Setting</a>
+                                    <!-- text-->
+                                    <div class="dropdown-divider"></div>
+                                    <!-- text-->
+                                    <a href="javascript:void(0)" onclick="logout()" class="dropdown-item"><i class="fas fa-power-off"></i> Logout</a>
+                                    <!-- text-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sidebar navigation-->
+                    <nav class="sidebar-nav">
+                        <ul id="sidebarnav">
+                            {% if request.session.userrole == "System Admin" or request.session.userrole == "Clinic Manager" or request.session.userrole == "Clinic User" or request.session.userrole == "Supplier" or request.session.userrole == "Technician" %}
+                                {% if request.session.userrole == "System Admin" %}
+                                <li class="nav-small-cap">ADMIN</li>
+                                <li> <a class="waves-effect waves-dark" href="{% url 'users' %}"
+                                        aria-expanded="false"><i class="icon-people"></i><span class="hide-menu">User Management</span></a>
+                                </li>
+                                {% endif %}
+                                <li class="nav-small-cap">EHS</li>
+                                {% if request.session.userrole == "System Admin" %}
+                                <li> <a class="waves-effect waves-dark" href="{% url 'clinic' %}"
+                                        aria-expanded="false"><i class="mdi mdi-hospital-building"></i><span class="hide-menu">Clinics</span></a>
+                                </li>
+                                <li> <a class="waves-effect waves-dark" href="{% url 'product' %}"
+                                        aria-expanded="false"><i class="icon-handbag"></i><span class="hide-menu">Products</span></a>
+                                </li>
+                                {% endif %}
+                                
+                                <li> <a class="has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="ti-agenda"></i><span class="hide-menu">Orders</span></a>
+                                    <ul aria-expanded="false" class="collapse">
+                                        <li><a href="{% url 'orders' %}">Orders</a></li>
+                                        {% if request.session.userrole == "System Admin" or request.session.userrole == "Clinic Manager" or request.session.userrole == "Clinic User" %}
+                                        <li><a href="{% url 'createOrder' %}">Create Order</a></li>
+                                        {% endif %}
+                                    </ul>
+                                </li>
+                                
+                                {% if request.session.userrole == "System Admin" %}
+                                <li> <a class="waves-effect waves-dark" href="{% url 'invoices' %}"
+                                    aria-expanded="false"><i class="ti-receipt"></i><span class="hide-menu">Invoices & Status</span></a>
+                                </li>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if request.session.userrole == "System Admin" or request.session.userrole == "Doctor" or request.session.userrole == "Intake Agent" or request.session.userrole == "Referral Source" %}
+                            <li class="nav-small-cap">IME</li>
+                            <li> <a class="has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="fas fa-briefcase-medical"></i><span class="hide-menu">Assessments</span></a>
+                                <ul aria-expanded="false" class="collapse">
+                                    <li><a href="{% url 'assessments' %}">Assessments</a></li>
+                                    <li><a href="{% url 'assess_default' %}">Default</a></li>
+                                    <li><a href="{% url 'assess_type' %}">Type</a></li>
+                                    <li><a href="{% url 'assess_location' %}">Location</a></li>
+                                </ul>
+                            </li>
+                            <li> <a class="waves-effect waves-dark" href="{% url 'question_banklist' %}"
+                                    aria-expanded="false"><i class="far fa-question-circle"></i><span class="hide-menu">Question Bank List</span></a>
+                            </li>
+                            <!-- <li> <a class="waves-effect waves-dark" href="{% url 'referral_agency' %}"
+                                    aria-expanded="false"><i class="fas fa-building"></i><span class="hide-menu">Referral Agency</span></a>
+                            </li> -->
+                            <li> <a class="waves-effect waves-dark" href="{% url 'scheduler' %}"
+                                aria-expanded="false"><i class="mdi mdi-calendar-blank"></i><span class="hide-menu">Scheduler</span></a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+            {% block body %}{% endblock %}
+        </div>
+        
+        <script type="text/javascript" src="{% static 'assets/node_modules/jquery/jquery-3.2.1.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/popper/popper.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'dist/js/perfect-scrollbar.jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'dist/js/waves.js' %}"></script>
+        <script type="text/javascript" src="{% static 'dist/js/sidebarmenu.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/sticky-kit-master/dist/sticky-kit.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/sparkline/jquery.sparkline.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/sweetalert2/dist/sweetalert2.all.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'assets/node_modules/toast-master/js/jquery.toast.js' %}"></script>
+
+        {% block javascript %}{% endblock %}
+        
+        <script type="text/javascript" src="{% static 'assets/node_modules/wizard/jquery.validate.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'dist/js/custom.min.js' %}"></script>
+
+        <script>
+            function logout(){
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/logout/user/",
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    processData: false,
+                    cache: false,
+                    contentType: false,
+                    success: function (data)
+                    {
+                        location.replace("/");
+                    }
+                });
+            }
+
+            function updateNotification(){
+                var formData = new FormData();
+                formData.append("userId", "{{request.session.userid}}");
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/getOrderMails/",
+                    data: formData,
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    processData: false,
+                    cache: false,
+                    contentType: false,
+                    success: function (data)
+                    {
+                        $(".message-center").html(data.data);
+                        
+                        if(data.notify == 'yes'){
+                            $(".notify").css("display", "block");
+                        }else if(data.notify == 'no'){
+                            $(".notify").css("display", "none");
+                        }
+                    }
+                });
+            }
+
+            function sendScheduledAlert(){
+                var formData = new FormData();
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/sendScheduledAlert/",
+                    data: formData,
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    processData: false,
+                    cache: false,
+                    contentType: false,
+                    success: function (data)
+                    {}
+                });
+            }
+
+            $(document).ready(function() {
+                updateNotification();
+                $(".notify").css("display", "none");
+
+                setInterval(function(){
+                    if(true){
+                        updateNotification();
+                        sendScheduledAlert();
+                    }
+                }, 60 * 1000);
+
+                $("#nav_link_notification").on('click', function(){
+                    var className = $("#menu_notification").attr("class");
+                    if(className == "nav-item dropdown"){
+                        $(".notify").css("display", "none");
+                    }
+                });
+            });
+        </script>d
+    </body>
+</html>

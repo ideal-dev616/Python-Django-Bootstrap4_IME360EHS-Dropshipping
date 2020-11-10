@@ -1,0 +1,604 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/dropify/dist/css/dropify.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'dist/css/pages/bootstrap-switch.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/node_modules/multiselect/css/multi-select.css' %}" rel="stylesheet" />
+    
+{% endblock %}
+{% block body %}
+    <div class="page-wrapper">
+        <div class="container-fluid" style="padding: 0 70px;">
+            <div class="row page-titles">
+                <div class="col-md-5 align-self-center">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active">Users</li>
+                    </ol>
+                </div>
+                <div class="col-md-7 align-self-center text-right">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <div id="modal_adduser" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Add User</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="form_adduser" class="form-horizontal p-t-20">
+                                            <div class="alert alert-danger" id="errormsg_exist" style="text-align: left;"></div>
+                                            {% csrf_token %}
+                                            <div class="form-group row">
+                                                <div class="col-sm-6">
+                                                    <label style="float:left;" class="p-b-5">User Role</label>
+                                                    <select class="custom-select col-12" id="add_role">
+                                                        <option value="System Admin" selected>System Admin</option>
+                                                        <option value="Clinic User">Clinic User</option>
+                                                        <option value="Clinic Manager">Clinic Manager</option>
+                                                        <option value="Supplier">Supplier</option>
+                                                        <option value="Intake Agent">Intake Agent</option>
+                                                        <option value="Technictian">Technictian</option>
+                                                        <option value="Doctor">Doctor</option>
+                                                        <option value="Referral Agency">Referral Agency</option>
+                                                        <option value="Assessment Admin">Assessment Admin</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-6 bt-switch"  style="text-align: left;">
+                                                    <label class="p-b-5">Status:&nbsp;</label><br>
+                                                    <input type="checkbox" id="add_status" checked data-on-color="success" data-off-color="danger" data-on-text="<i class='ti-check'></i>&nbsp;&nbsp;Active" data-off-text="<i class='ti-close'></i>&nbsp;&nbsp;Off">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_firstname" name="add_firstname" placeholder="Firstname">
+                                                        <div class="input-group-append"><span class="input-group-text"><i class="ti-user"></i></span></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_lastname" name="add_lastname" placeholder="Lastname">
+                                                        <div class="input-group-append"><span class="input-group-text"><i class="ti-user"></i></span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-12">
+                                                    <div class="input-group">
+                                                        <input type="email" class="form-control" id="add_email" name="add_email" placeholder="Enter email">
+                                                        <div class="input-group-append"><span class="input-group-text"><i class="ti-email"></i></span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-12">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_phone" name="add_phone" placeholder="Phone Number">
+                                                        <div class="input-group-append"><span class="input-group-text"><i class="icon-phone"></i></span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-12">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="add_extension" placeholder="Extension">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-12">
+                                                    <div class="input-group">
+                                                        <input type="password" class="form-control" id="add_password" name="add_password" placeholder="Enter pwd">
+                                                        <div class="input-group-append"><span class="input-group-text"><i class="ti-lock"></i></span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-12">
+                                                    <div class="input-group">
+                                                        <input type="password" class="form-control" id="add_passwordP" name="add_passwordP" placeholder="Re Enter pwd">
+                                                        <div class="input-group-append"><span class="input-group-text"><i class="ti-lock"></i></span></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-md-12">
+                                                    <label style="float:left;" class="p-b-5">Upload signature</label>
+                                                    <input type="file" id="add_signature" class="dropify" data-default-file="" />
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                <button type="submit" id="btn_adduser" class="btn btn-primary waves-effect waves-light">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" data-toggle="modal" data-target="#modal_adduser" class="btn btn-primary d-none d-lg-block m-l-15" id="btn_adduser"><i
+                                class="fa fa-plus-circle"></i> Add User</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body" style="padding: 1.25rem 0;">
+                            <div class="table-responsive">
+                                <table id="tbl_users" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>User Type</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Status</th>
+                                            <th>Phone No</th>
+                                            <th>Phone Extension</th>
+                                            <th>Email</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>User Type</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Status</th>
+                                            <th>Phone No</th>
+                                            <th>Phone Extension</th>
+                                            <th>Email</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr id="{{user.id}}" value="{{user.signature}}">
+                                            <td class="td_role">{{user.role}}</td>
+                                            <td class="td_firstname">{{user.first_name}}</td>
+                                            <td class="td_lastname">{{user.last_name}}</td>
+                                            {% if user.status == "true" %}
+                                            <td class="td_status"><span class="label label-table label-success">Active</span></td>
+                                            {% else %}
+                                            <td class="td_status"><span class="label label-table label-danger">Off</span></td>
+                                            {% endif %}
+                                            <td class="td_phone">{{user.phone}}</td>
+                                            <td class="td_extension">{{user.extension}}</td>
+                                            <td class="td_email">{{user.email}}</td>
+                                            <td>
+                                                <div class="btn-group btn-group-xs" role="group">
+                                                    <button type="button" onclick="initial_editform(this)" data-toggle="modal" data-target="#modal_edituser" class="btn btn-secondary">
+                                                        <span class="fas fa-pencil-alt" aria-hidden="true"></span>
+                                                    </button> 
+                                                    <button type="button" class="btn btn-secondary footable-delete btn_deleteuser"><span class="fas fa-trash-alt" aria-hidden="true"></span></button>
+                                                    {% if user.role == "Clinic Manager" %}
+                                                    <button type="button" onclick="addClinicUser(this)" data-toggle="modal" data-target="#modal_addclinicuser" style="padding:0 9px;" class="btn btn-secondary">
+                                                        <span class="mdi mdi-account-multiple-plus" style="font-size:18px;" aria-hidden="true"></span>
+                                                    </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div id="modal_edituser" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Edit User</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="form_edituser" class="form-horizontal p-t-20">
+                                                    <div class="alert alert-danger" id="errormsg_exist_edit" style="text-align: left;"></div>
+                                                    {% csrf_token %}
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-6">
+                                                            <label style="float:left;" class="p-b-5">User Role</label>
+                                                            <select class="custom-select col-12" id="edit_role">
+                                                                <option value="System Admin" selected>System Admin</option>
+                                                                <option value="Clinic Manager">Clinic Manager</option>
+                                                                <option value="Clinic User">Clinic User</option>
+                                                                <option value="Supplier">Supplier</option>
+                                                                <!-- <option value="Technictian">Technician</option> -->
+                                                                <option value="Intake Agent">Intake Agent</option>
+                                                                <option value="Doctor">Doctor</option>
+                                                                <option value="Referral Source">Referral Source</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-sm-6 bt-switch"  style="text-align: left;">
+                                                            <label class="p-b-5">Status:&nbsp;</label><br>
+                                                            <input type="checkbox" id="edit_status" checked data-on-color="success" data-off-color="danger" data-on-text="<i class='ti-check'></i>&nbsp;&nbsp;Active" data-off-text="<i class='ti-close'></i>&nbsp;&nbsp;Off">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-6">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_firstname" name="edit_firstname" placeholder="Firstname">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-user"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-6">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_lastname" name="edit_lastname" placeholder="Lastname">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-user"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="email" class="form-control" id="edit_email" name="edit_email" placeholder="Enter email" readonly>
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-email"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_phone" name="edit_phone" placeholder="Phone Number">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="icon-phone"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control" id="edit_extension" name="edit_extension" placeholder="Extension">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="password" class="form-control" id="edit_password" name="edit_password" placeholder="Enter pwd">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-lock"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-sm-12">
+                                                            <div class="input-group">
+                                                                <input type="password" class="form-control" id="edit_passwordP" name="edit_passwordP" placeholder="Re Enter pwd">
+                                                                <div class="input-group-append"><span class="input-group-text"><i class="ti-lock"></i></span></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row">
+                                                        <div class="col-md-12">
+                                                            <label style="float:left;" class="p-b-5">Upload signature</label>
+                                                            <input type="file" id="edit_signature" class="dropify" data-default-file="/static/assets/node_modules/dropify/src/images/test-image-1.jpg" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                        <button type="submit" id="btn_edituser" class="btn btn-primary waves-effect waves-light">Save</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="modal_addclinicuser" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">Confirm</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="form_edituser" class="form-horizontal p-t-20">
+                                                    {% csrf_token %}
+                                                    <div class="row">
+                                                        <div class="col-lg-12 col-xlg-12">
+                                                            <div class="row">
+                                                                <div class="col-md-6"><h5 class="box-title">Add clinic users</h5></div>
+                                                                <div class="col-md-6"><h5 class="box-title" style="margin-left: 65px;">Current clinic users</h5></div>
+                                                            </div>
+                                                            <div id="multi-select">
+                                                                
+                                                            </div>
+                                                            <div class="button-box m-t-20"> 
+                                                                <a id="select-all" class="btn btn-primary" href="javascript:void(0)">Select all</a> 
+                                                                <a id="deselect-all" class="btn btn-secondary" href="javascript:void(0)">Deselect all</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                                                        <button type="button" id="btn_assigncuser" class="btn btn-primary waves-effect waves-light">Save</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/dropify/dist/js/dropify.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dist/js/pages/validation.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/multiselect/js/jquery.multi-select.js' %}"></script>
+
+    <script type="text/javascript">
+        $(".bt-switch input[type='checkbox'], .bt-switch input[type='radio']").bootstrapSwitch();
+        $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+
+        $("#errormsg_exist_edit").css("display","none");
+        $("#errormsg_exist").css("display","none");
+        var cmanager_id = null;
+
+        function initial_editform(elm){
+            trow = $(elm).parent().parent().parent();
+            $("#edit_role").val(trow.children(".td_role").text());
+            if(trow.children(".td_status").text() == "Active"){
+                $("#edit_status").bootstrapSwitch('state', true);
+            }else{
+                $("#edit_status").bootstrapSwitch('state', false);
+            }
+            $("#edit_firstname").val(trow.children(".td_firstname").text());
+            $("#edit_lastname").val(trow.children(".td_lastname").text());
+            $("#edit_email").val(trow.children(".td_email").text());
+            $("#edit_phone").val(trow.children(".td_phone").text());
+            $("#edit_extension").val(trow.children(".td_extension").text());
+            var fullpath = "";
+            if(trow.attr("value")!=""){
+                fullpath = "/static" + trow.attr("value");
+                $("#edit_signature").attr("data-default-file", fullpath);
+                $("#edit_signature").parent().children(".dropify-preview").css("display","block");
+                $("#edit_signature").parent().children(".dropify-preview").children(".dropify-render").html("<img src='"+ fullpath +"'>");
+                $('.dropify').dropify();
+            }else{
+                $(".dropify-clear").trigger("click");
+            }
+            $(".dropify-filename-inner").text("signature");
+        }
+
+        function addClinicUser(elm){
+            trow = $(elm).parent().parent().parent();
+            cmanager_id = trow.attr("id");
+
+            var formData = new FormData();
+            formData.append("cmanager", cmanager_id);
+
+            $.ajax({
+                type: "POST",
+                url: "/ajax/cusers_by_cmanager/",
+                data: formData,
+                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                processData: false,
+                cache: false,
+                contentType: false,
+                success: function (data)
+                {
+                    $("#multi-select").html(data.result);
+                    // For multiselect
+                    $('#optgroup').multiSelect({
+                        selectableOptgroup: true
+                    });
+                    $('#add_clinicusers').multiSelect();
+                    $('#select-all').click(function () {
+                        $('#add_clinicusers').multiSelect('select_all');
+                        return false;
+                    });
+                    $('#deselect-all').click(function () {
+                        $('#add_clinicusers').multiSelect('deselect_all');
+                        return false;
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function() {            
+            $('#tbl_users').DataTable();
+            $('.dropify').dropify();
+            $('#form_adduser').validate({
+                rules: {
+                    add_firstname: {
+                        required: true
+                    },
+                    add_lastname: {
+                        required: true
+                    },
+                    add_email: {
+                        required: true
+                    },
+                    add_password: {
+                        required: true
+                    },
+                    add_passwordP: {
+                        required: true
+                    }
+                },
+                errorPlacement: function(){
+                    return false;
+                }                
+            });
+
+            $('#form_edituser').validate({
+                rules: {
+                    edit_firstname: {
+                        required: true
+                    },
+                    edit_lastname: {
+                        required: true
+                    },
+                    edit_email: {
+                        required: true
+                    },
+                    edit_password: {
+                        required: true
+                    },
+                    edit_passwordP: {
+                        required: true
+                    }
+                },
+                errorPlacement: function(){
+                    return false;
+                }                
+            });
+
+            $("#form_adduser").submit(function(e){
+                e.preventDefault();
+                
+                var formData = new FormData();
+
+                var img_signature = $("#add_signature")[0].files[0];
+                formData.append("signature", img_signature);
+                formData.append("role", $("#add_role").val());
+                formData.append("status", $("#add_status").bootstrapSwitch('state'));
+                formData.append("firstname", $("#add_firstname").val());
+                formData.append("lastname", $("#add_lastname").val());
+                formData.append("email", $("#add_email").val());
+                formData.append("phone", $("#add_phone").val());
+                formData.append("extension", $("#add_extension").val());
+                formData.append("password", $("#add_password").val());
+                
+                if($(this).valid()){
+                    $("#errormsg_exist").html("");
+                    $("#errormsg_exist").css("display", "none");
+                    if($("#add_password").val() != $("#add_passwordP").val()){
+                        $("#errormsg_exist").html('<i class="ti-user"></i>&nbsp;&nbsp;&nbsp;Please enter the same password.');
+                        $("#errormsg_exist").css("display", "block");
+                    }else{
+                        $.ajax({
+                            type: "POST",
+                            url: "/ajax/add/user/",
+                            data: formData,
+                            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                            processData: false,
+                            cache: false,
+                            contentType: false,
+                            // dataType: 'json',
+                            success: function (data)
+                            {
+                                if(data.result=="exist"){
+                                    $("#errormsg_exist").html('<i class="ti-user"></i>&nbsp;&nbsp;&nbsp;This User Email already exists.');
+                                    $("#errormsg_exist").css("display", "block");
+                                }else if(data.result=="success"){
+                                    $("#modal_adduser").modal("toggle");
+                                    location.reload(true);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            $("#form_edituser").submit(function(e){
+                e.preventDefault();
+                var formData = new FormData();
+
+                var img_signature = $("#edit_signature")[0].files[0];
+
+                formData.append("signature", img_signature);
+                formData.append("image_exist", $("#edit_signature").parent().children(".dropify-preview").css("display"));
+                formData.append("role", $("#edit_role").val());
+                formData.append("status", $("#edit_status").bootstrapSwitch('state'));
+                formData.append("firstname", $("#edit_firstname").val());
+                formData.append("lastname", $("#edit_lastname").val());
+                formData.append("email", $("#edit_email").val());
+                formData.append("phone", $("#edit_phone").val());
+                formData.append("extension", $("#edit_extension").val());
+                formData.append("password", $("#edit_password").val());
+                
+                if($(this).valid()){
+                    $("#errormsg_exist_edit").html("");
+                    $("#errormsg_exist_edit").css("display", "none");
+                    if($("#edit_password").val() != $("#edit_passwordP").val()){
+                        $("#errormsg_exist_edit").html('<i class="ti-user"></i>&nbsp;&nbsp;&nbsp;Please enter the same password.');
+                        $("#errormsg_exist_edit").css("display", "block");
+                    }else{
+                        $.ajax({
+                            type: "POST",
+                            url: "/ajax/edit/user/",
+                            data: formData,
+                            headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                            processData: false,
+                            cache: false,
+                            contentType: false,
+                            success: function (data)
+                            {
+                                if(data.result=="success"){
+                                    $("#modal_adduser").modal("toggle");
+                                    location.reload(true);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            $(".btn_deleteuser").on('click', function(){
+                $.ajax({
+                    type: "POST",
+                    url: "/ajax/delete/user/",
+                    data: {
+                        'id' : $(this).parent().parent().parent().attr("id"),
+                    },
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    dataType: 'json',
+                    success: function (data)
+                    {
+                        location.reload(true);
+                    }
+                });
+            });
+        
+            $("#btn_assigncuser").on('click', function(e){
+                var formData = new FormData();
+                
+                var add_clinicusers = [];
+                $.each($("#add_clinicusers option:selected"), function(){            
+                    add_clinicusers.push($(this).val());
+                });
+                formData.append("cusers", add_clinicusers);
+                formData.append("cmanager", cmanager_id);
+                
+                if($(this).valid()){
+                    $.ajax({
+                        type: "POST",
+                        url: "/ajax/add/cusers/",
+                        data: formData,
+                        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                        processData: false,
+                        cache: false,
+                        contentType: false,
+                        success: function (data)
+                        {
+                            if(data.result == "success"){
+                                $("#modal_addclinicuser").modal("toggle");
+                                Swal.fire({
+                                    icon: "success",
+                                    title: 'Success',
+                                    text: "The Clinic Users for this Clinic Manager were successfully added.",
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#00c292',
+                                    cancelButtonColor: '#e46a76',
+                                    confirmButtonText: 'OK'
+                                })
+                                .then((result) => {
+                                    window.location.replace("/users");
+                                })
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}

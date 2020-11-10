@@ -1,0 +1,153 @@
+{% extends 'layout/app.html' %} {% load static %}
+{% block stylesheet %}
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/node_modules/dropify/dist/css/dropify.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'dist/css/pages/bootstrap-switch.css' %}" rel="stylesheet" />
+{% endblock %}
+{% block body %}
+    <div class="page-wrapper">
+        <div class="container-fluid" style="padding: 0 70px;">
+            <div class="row page-titles">
+                <div class="col-md-5 align-self-center">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:void(0)">Home</a></li>
+                        <li class="breadcrumb-item active">Orders</li>
+                    </ol>
+                </div>
+                <div class="col-md-7 align-self-center text-right">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <button type="button" onclick="location.href = `{% url 'createOrder' %}`;" class="btn btn-primary d-none d-lg-block m-l-15" id="btn_addclinic"><i
+                                class="fa fa-plus-circle"></i> Create Order</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body" style="padding: 1.25rem 0;">
+                            <div class="table-responsive">
+                                <table id="tbl_orders" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Clinic</th>
+                                            <th>Order Date</th>
+                                            <th>PO Number</th>
+                                            <th>Total Price ($)</th>
+                                            <th>Shipping Status</th>
+                                            <th>Payment Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Clinic</th>
+                                            <th>Order Date</th>
+                                            <th>PO Number</th>
+                                            <th>Total Price ($)</th>
+                                            <th>Shipping Status</th>
+                                            <th>Payment Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        {% for order in orders %}
+                                        <tr id="{{order.0}}">
+                                            <td>{{order.1}}</td>
+                                            <td>{{order.2}}</td>
+                                            <td>{{order.0}}</td>
+                                            <td>{{order.4}}</td>
+
+                                            {% if order.5 == 0 %}
+                                            <td><span class="label label-table label-primary">No Shipments</span></td>
+                                            {% elif order.5 == order.13 %}
+                                            <td><span class="label label-table label-success">Shipped In Full</span></td>
+                                            {% else %}
+                                            <td><span class="label label-table label-info">Shipped In Part</span></td>
+                                            {% endif %}
+
+                                            {% if order.6 == 0 %}
+                                            <td><span class="label label-table label-primary">Pending Payment</span></td>
+                                            {% elif order.5 == order.13 %}
+                                            <td><span class="label label-table label-success">Paid Fully</span></td>
+                                            {% elif order.6 > 0 %}
+                                            <td><span class="label label-table label-info">Paid In Part</span></td>
+                                            {% endif %}
+
+                                            <td>
+                                                <div class="btn-group btn-group-xs" role="group">
+                                                    <button type="button" onclick="vieworder(this)" class="btn btn-secondary" style="padding: 2px 10px;"><i class="mdi mdi-eye"></i>&nbsp;View</button> 
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+
+                                        {% if orders1 != "" %}
+                                            {% for order in orders1 %}
+                                            <tr id="{{order.0}}">
+                                                <td>{{order.1}}</td>
+                                                <td>{{order.2}}</td>
+                                                <td>{{order.0}}</td>
+                                                <td>{{order.4}}</td>
+
+                                                {% if order.5 == 0 %}
+                                                <td><span class="label label-table label-primary">No Shipments</span></td>
+                                                {% elif order.5 == order.13 %}
+                                                <td><span class="label label-table label-success">Shipped In Full</span></td>
+                                                {% else %}
+                                                <td><span class="label label-table label-info">Shipped In Part</span></td>
+                                                {% endif %}
+
+                                                {% if order.6 == 0 %}
+                                                <td><span class="label label-table label-primary">Pending Payment</span></td>
+                                                {% elif order.5 == order.13 %}
+                                                <td><span class="label label-table label-success">Paid Fully</span></td>
+                                                {% elif order.6 > 0 %}
+                                                <td><span class="label label-table label-info">Paid In Part</span></td>
+                                                {% endif %}
+
+                                                <td>
+                                                    <div class="btn-group btn-group-xs" role="group">
+                                                        <button type="button" onclick="vieworder(this)" class="btn btn-secondary"><i class="mdi mdi-eye"></i>&nbsp;View</button> 
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript" src="{% static 'assets/node_modules/datatables.net/js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/dropify/dist/js/dropify.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'assets/node_modules/bootstrap-switch/bootstrap-switch.min.js' %}"></script>
+
+    <script type="text/javascript">
+        $(".bt-switch input[type='checkbox'], .bt-switch input[type='radio']").bootstrapSwitch();
+
+        function vieworder(elm){
+            var id = $(elm).parent().parent().parent().attr("id");
+            window.location.replace("/order/view?id=" + id);
+        }
+
+        $(document).ready(function() {
+            $('#tbl_orders').DataTable({
+                "order": [[ 2, 'desc' ]]
+            });
+
+            $('.dropify').dropify();
+
+        });
+
+    </script>
+{% endblock %}
