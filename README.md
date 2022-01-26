@@ -1,6 +1,6 @@
 # Step for Set Up
 ``` 
- 1. git clone https://github.com/GoodChoice-yyy8/ime360ehs
+ 1. git clone https://github.com/goodidea0616/ime360ehs
 
  2. Change settings.py MYSQL CONFIGURATIONS (name, user, password)
 
