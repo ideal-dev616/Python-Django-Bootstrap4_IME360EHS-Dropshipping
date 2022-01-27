@@ -82,7 +82,7 @@ pandocfilters==1.4.2
 parso==0.7.0
 path==14.0.1
 pbr==5.4.4
-pexpect==4.2.1
+// pexpect==4.2.1
 pickleshare==0.7.5
 pillow==7.1.2
 prometheus-client==0.8.0
