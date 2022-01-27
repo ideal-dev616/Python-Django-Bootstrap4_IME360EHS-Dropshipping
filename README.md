@@ -2,18 +2,24 @@
 ``` 
  1. git clone https://github.com/goodidea0616/Ime360ehs-Clinic-Webapp-Python-Django.git
 
- 2. Change settings.py MYSQL CONFIGURATIONS (name, user, password)
+ 2. change settings.py MYSQL CONFIGURATIONS (name, user, password)
 
- 3. cd ime360ehs
+ 3. cd Ime360ehs-Clinic-Webapp-Python-Django
 
  4. pip install -r requirements.txt
 
- 5. python manage.py migrate
+ 5. python manage.py makemigrations ime360ehs
 
- 6. python manage.py makemigrations
+ 6. python manage.py migrate
 
- 8. python manage.py runserver
+ 7. import default sqls (users.sql, clinics.sql, products.new.sql)
 
- 9. Login to http://127.0.0.1:8000
+ 8. python manage.py runserver or python manage.py runserver 127.0.0.1:9000
+
+ 9. login to http://127.0.0.1:8000 by default or http://127.0.0.1:9000
+
+ 10. default user 
+    email: yingyingyeah@outlook.com
+    pwd: agree
 
 ```
