@@ -5,3 +5,4 @@
 !.elasticbeanstalk/*.global.yml
 env
 venv
+ime360ehs/migrations
