@@ -1,10 +1,6 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
-from django.shortcuts import redirect
-from django.template import RequestContext
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponse, HttpResponseRedirect
 from datetime import datetime, date
 from django.db import connection
 from django.http import JsonResponse
@@ -13,22 +9,13 @@ from django.conf import settings
 from ime360ehs.models import User, Clinic, Product, CustomOrderSheet, Order, OrderedProduct, OrderTemplate, ReferralAgency, QuestionBankList, AssessLocation, AssessManageName, AssessType, ClinicUsers, MailBox, BackOrder, Scheduler, ScheduledTime, Assessment, AssessDocSummary, AssessMVADetails, AssessTreatToDate, AssessPastMedicalHistory, AssessFamilyHistory, AssessMedication, AssessAllergies, AssessSocialHistory, AssessActivityTolerances, AssessOccupantionalStatus, AssessPsychologicalStatus, AssessPresentComplaints, AssessPhysicalExam, AssessDiagnoses, AssessReferralQuestions
 
 import uuid
-import requests
-import http.client
 import json
-import os, sys, shutil
-import traceback
+import os
 from django.db.models import Max
-import random
 import datetime
 from datetime import date
 
 from django.core.mail import send_mail
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
-from sqlalchemy import update
-
 # ---------------------- ADMIN ----------------------
 
 # Page - Authentication & Main
