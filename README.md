@@ -1,6 +1,6 @@
 # Step for Set Up
 ``` 
- 1. git clone https://github.com/goodidea0616/Ime360ehs.git
+ 1. git clone https://github.com/goodidea0616/Ime360ehs-Python-Django-Bootstrap4.git
 
  2. change settings.py MYSQL CONFIGURATIONS (name, user, password)
 
